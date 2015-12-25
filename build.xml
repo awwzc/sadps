@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="work-web" basedir="." default="deploy">
+	<!-- =================================================================== -->
+	<!-- Set Variable -->
+	<!-- =================================================================== -->
+	<property environment="env" />
+	<property name="project.root" value="${basedir}" />
+	<property file="build.properties" />
+
+	<!-- temp dir -->
+	<property name="src.dir" value="${project.root}/src" />
+	<property name="src.java.dir" value="${src.dir}/java" />
+	<property name="src.jsp.dir" value="${src.dir}/webroot" />
+	<property name="src.config.dir" value="${src.dir}/config" />
+	<property name="findbugs.home" value="${findbugs.home}" />
+	<property name="mail.receipts" value="${mail.receipts}" />
+
+	<!-- Compile Temp Dir -->
+	<property name="build.dir" value="${project.root}/build" />
+
+	<!-- Java Compile CLASSPATH -->
+
+	<path id="findbugs.classpath">
+		<fileset dir="${findbugs.home}/lib">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+	<path id="master-classpath">
+		<fileset dir="${project.lib}"/>
+		<fileset dir="${runtime.lib}"/>
+	</path>
+
+	<target name="clean" depends="usage">
+		<delete dir="${build.dir}"/>
+		<delete dir="${deploy.server.exploded.dir}"/>
+		<delete file="${deploy.war.dir}/${project.name}.war"/>
+		<delete file="${tomcat.webapps}/${project.name}.war"/>
+		<delete dir="${tomcat.webapps}/${project.name}"/>
+	</target>
+
+	<target name="compile" depends="clean">
+		<mkdir dir="${build.dir}"/>
+
+		<javac encoding="UTF-8" destdir="${build.dir}" target="1.5" debug="true" deprecation="false" optimize="false" failonerror="true">
+			<src path="${src.java.dir}"/>
+			<classpath refid="master-classpath"/>
+		</javac>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- 创建用于发布的到服务端的WAR包文件 -->
+	<!-- =================================================================== -->
+	<target name="web-war" depends="exploded-web-war">
+		<buildnumber />
+		<jar jarfile="${deploy.war.dir}/${project.name}.war" basedir="${deploy.server.exploded.dir}" />
+
+		<delete dir="${deploy.server.exploded.dir}/WEB-INF" />
+
+		<delete dir="${build.dir}" />
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- 创建展开目录形式的WAR应用 -->
+	<!-- =================================================================== -->
+	<target name="exploded-web-war" depends="compile">
+		<mkdir dir="${deploy.server.exploded.dir}/WEB-INF/lib"/>
+		<mkdir dir="${deploy.server.exploded.dir}/WEB-INF/classes"/>
+
+		<copy todir="${deploy.server.exploded.dir}/WEB-INF/classes">
+			<fileset dir="${build.dir}/">
+			</fileset>
+			
+			<fileset dir="${src.config.dir}">
+			<include name="*.properties" />
+			<exclude name="messages*.properties" />
+			</fileset>
+		</copy>
+
+		<copy todir="${deploy.server.exploded.dir}/WEB-INF/lib" preservelastmodified="true" flatten="true" >
+			<fileset dir="${project.lib}">
+				<include name="**/*.jar"/>
+				<exclude name="junit.jar" />
+			</fileset>
+		</copy>
+
+		<!-- 创建WAR的内容 -->
+		<copy todir="${deploy.server.exploded.dir}/WEB-INF">
+			<fileset dir="${src.config.dir}">
+				<exclude name="*.properties"/>
+				<include name="applicationContext*.xml"/>
+				<include name="web.xml"/>
+			</fileset>
+		</copy>
+
+		<!-- MessageBundle编码转换-->
+		<native2ascii src="${src.config.dir}" encoding="UTF-8" dest="${deploy.server.exploded.dir}/WEB-INF/classes" includes="messages*.properties"/>
+
+		<copy todir="${deploy.server.exploded.dir}">
+			<fileset dir="${src.jsp.dir}/" />
+		</copy>
+	</target>
+
+	<target name="deploy" depends="web-war">
+		<delete file="${tomcat.webapps}/${project.name}" />
+		<delete file="${tomcat.webapps}/${project.name}.war" />
+		<copy todir="${tomcat.webapps}">
+			<fileset dir="${deploy.war.dir}">
+				<include name="${project.name}.war" />
+			</fileset>
+		</copy>
+		<exec dir="${tomcat.home}/bin" command="cmd" failonerror="true">
+			<!-- <arg line="/c startup.bat"/> -->
+			<arg line="/c catalina.bat jpda start"/>
+		</exec>
+	</target>
+
+	<target name="findbugs" depends="compile">
+		<mkdir dir="${deploy.war.dir}/findbugs" />
+		<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="findbugs.classpath">
+		</taskdef>
+		<findbugs projectname="${project.name}" home="${findbugs.home}" output="html" outputfile="${deploy.war.dir}/findbugs/${project.name}-FindBugs.html" jvmargs="-Xms128m -Xmx256m" stylesheet="fancy-hist.xsl" excludefilter="exclude-filter.xml">
+			<class location="${build.dir}/" />
+		</findbugs>
+	</target>
+
+	<target name="findbugs-xml" depends="compile">
+		<mkdir dir="${deploy.war.dir}/findbugs" />
+		<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask" classpathref="findbugs.classpath">
+		</taskdef>
+		<findbugs projectname="${project.name}" home="${findbugs.home}" output="xml" outputfile="${deploy.war.dir}/findbugs/FindBugs.xml" jvmargs="-Xms128m -Xmx256m" excludefilter="exclude-filter.xml">
+			<class location="${build.dir}/" />
+		</findbugs>
+	</target>
+
+	<target name="send-findbugs-results-email" depends="findbugs">
+		<mail mailhost="in.xxx.com" user="dsma" password="dsma" subject="Findbugs results" tolist="${mail.receipts}">
+			<from address="xxx@yyy"/>
+			<message>For more information, see the attachement!</message>
+			<fileset dir="${deploy.war.dir}/findbugs">
+				<include name="${project.name}-FindBugs.html" />
+			</fileset>
+		</mail>
+	</target>
+	<!-- =================================================================== -->
+	<!-- 帮助信息 -->
+	<!-- =================================================================== -->
+	<target name="usage">
+		<echo message="SK Platform Build Script" />
+		<echo message="用法: ant -[target]" />
+		<echo message="[target]" />
+		<echo message="---------------------------------------------------" />
+		<echo message="clean            -->清除临时编译文件" />
+		<echo message="compile          -->编译工程整个工程" />
+		<echo message="web-war          -->打包整个工程" />
+		<echo message="deploy           -->部署项目" />
+		<echo message="exploded-web-war -->创建展开式的工程结构" />
+		<echo message="---------------------------------------------------" />
+	</target>
+
+	<target name="main" depends="web-war">
+		<echo message="${project.name}项目构建完成" />
+	</target>
+
+</project>

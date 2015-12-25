@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+            http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+       default-lazy-init="false">
+	<description>定义web层的通用的资源</description>
+
+	<!--=====================================================================-->
+	<!-- 配置外部变量文件 -->
+	<!--=====================================================================-->
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+
+	<bean
+		class="org.springframework.web.context.support.ServletContextPropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="searchContextAttributes" value="true" />
+		<property name="contextOverride" value="true" />
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="locations">
+            <list>
+				<value>classpath:log4j.properties</value>
+				<value>classpath:work-context-web.properties</value>
+				<value>classpath:work-context-web-prd.properties</value>
+			</list>
+        </property>
+    </bean>
+    
+    <!-- 命名参数请求  -->
+	<bean id="defaultResolver" class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+		<property name="paramName">
+			<value>action</value>
+		</property>
+		<property name="defaultMethodName">
+			<value>list</value>
+		</property>
+	</bean>
+
+	<!--=====================================================================-->
+	<!--  定义视图解析器，用哪种解析器来生成最终供用户显示的视图 -->
+	<!--=====================================================================-->
+	<!-- ========================= VIEW DEFINITIONS ========================= -->
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+		<property name="suffix" value=".jsp"/>
+	</bean>
+
+	<!--=====================================================================-->
+	<!-- 定义业务系统的消息配置文件 -->
+	<!--=====================================================================-->
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>messages</value>
+			</list>
+		</property>
+	</bean>	
+	
+	<!--SESSIONID随机数产生器，PREFIX为随机数的前缀,txnID用T表示-->
+	<bean id="TxnIdGenerator"
+		class="com.lrt.framework.core.remoting.caucho.support.SessionIdGenerator">
+		<property name="prefix">
+			<value>T</value>
+		</property>
+	</bean>
+
+	<bean id="applicationController" class="com.lrt.framework.core.remoting.caucho.LrtHessianProxyFactoryBean">
+		<property name="serviceUrl">
+			<value>${platform.app.url}</value>
+		</property>
+		<property name="serviceInterface">
+			<value>com.lrt.framework.core.action.Action</value>
+		</property>
+		<property name="txnIDGenerator">
+			<ref local="TxnIdGenerator" />
+		</property>
+
+		<!-- 访问该服务用到的用户名密码 -->
+		<property name="username">
+			<value>${principal}</value>
+		</property>
+		<property name="password">
+			<value>${credentials}</value>
+		</property>
+	</bean>
+
+	<!-- 供MVC controller用到的dispatchservice，而不再使用原有Controller提供的方法 -->
+	<bean id="defaultDispatcher" class="com.lrt.framework.core.remoting.client.support.HessianDispatcher">
+		<!-- remote proxy -->
+		<property name="controller">
+			<ref local="applicationController" />
+		</property>
+	</bean>
+	
+	 <context:annotation-config />
+     <context:component-scan base-package="com.sk.deploy"/>
+     <context:component-scan base-package="com.sk.deploy.util"/>
+     <context:component-scan base-package="com.sk.deploy.servlet"/>
+	 <bean class="com.sk.deploy.util.SpringContextUtil"/>
+
+</beans>

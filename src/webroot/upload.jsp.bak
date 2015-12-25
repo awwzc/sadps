@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>部署</title>
+
+    <meta charset="UTF-8">
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/user-center.css">
+    <link rel="stylesheet" href="css/complaint.css">
+</head>
+
+<body class="module-complaint">
+    <div class="container">
+        <form class="complaint-form" action="work.do" method="post" data-provide="validation-1.0">
+            <input type="hidden" name="type" value="1">
+            <div class="tips-title">
+                <i class="icon icon-info"></i> 
+                <span class="title">开发联调环境自助部署</span>
+            </div>
+
+            <div class="content-panel something">
+                <i class="arrow-content-panel"><i></i>
+                </i>
+                <div class="control-group">
+                    <label class="control-label">
+                        <em class="required-mark">*</em>部署选项：</label>
+                    <div class="controls">
+                        <div class="complaint-tags">
+                            <label>
+                                <input type="checkbox" name="autoReboot" value="true" checked=checked > 自动重启
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">
+                        <em class="required-mark">*</em>上传war包：</label>
+                    <div class="controls">
+                        <div class="complaint-files">
+                            <div class="title">目前只支持war包部署</div>
+                            <div class="file-upload">
+                                <ul class="file-list">
+                                    <li class="file-add" data-check-url="/mem/complaint.do?action=allowUpload" data-url="/mem/complaint.do?action=upload" data-delete-url="/mem/complaint.do?action=fileDelete" data-hidden-name="fileName">
+                                        <input type="file" name="fileName">
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">配置文件：</label>
+                    <div class="controls">
+                        <div class="complaint-descript">
+                            <placeholder class="placeholder unselect" style="overflow: hidden; white-space: nowrap; cursor: text; margin: 0px; font-size: 12px; font-style: normal; font-weight: normal; font-family: Tahoma, Arial, &#39;Hiragino Sans GB&#39;, 宋体, sans-serif; line-height: 17.1420001983643px; position: absolute; left: 1px; top: 1px; max-width: 635px; padding: 8px 6px; display: inline;">建议：
+                                <br>1、请按照Java properties文件格式
+                                <br>2、已存在key值将做更新处理</placeholder>
+                            <textarea name="content" class="descript-textarea" maxlength="500"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="submit-btn-wrapper">
+                <span class="ui-progress-btn-wrapper" style="width: 176px; margin: 0px 10px 0px 0px; border-radius: 2px; vertical-align: middle;">
+                    <span class="ui-progress-btn-bar" style="border-radius: 2px 0px 0px 2px;"></span>
+                    <input type="submit" class="btn btn-submit ui-progress-btn-wrapped ui-progress-btn" value="上传文件">
+                </span>
+            </div>
+        </form>
+
+    </div>
+
+
+    <div class="footer">
+        <nav>
+            <a href="#">关于我们</a>
+            <span class="footer-split">｜</span>
+            <a href="#">公司大事记</a>
+            <span class="footer-split">｜</span>
+            <a href="#">资质荣誉</a>
+            <span class="footer-split">｜</span>
+            <a href="#">联系我们</a>
+
+        </nav>
+        <span class="mar-l">客服电话：86-0755-82872313</span>
+        <span class="mar-l">(工作时间: 9:00-17:00)</span>
+        <p>Copyright© 2014 鹏元征信有限公司 <a target="_blank" href="#">粤ICP备10240340号-5</a>
+        </p>
+    </div>
+</body>
+
+</html>
