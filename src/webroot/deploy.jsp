@@ -3,10 +3,10 @@
 <%@page import="java.util.Map"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="java.util.Map.Entry"%>
-<%@page import="com.tianxiaxinyong.deploy.util.SpringContextUtil"%>
-<%@page import="com.tianxiaxinyong.deploy.util.DeployHelper"%>
-<%@page import="com.tianxiaxinyong.deploy.support.Config"%>
-<%@page import="com.tianxiaxinyong.deploy.support.ProjectInfo"%>
+<%@page import="net.sk.deploy.util.SpringContextUtil"%>
+<%@page import="net.sk.deploy.util.DeployHelper"%>
+<%@page import="net.sk.deploy.support.Config"%>
+<%@page import="net.sk.deploy.support.ProjectInfo"%>
 <%
     Config projectConfig = SpringContextUtil.getConfig();
     Map<String,ProjectInfo> projectContext = projectConfig.getProjectsInfo();

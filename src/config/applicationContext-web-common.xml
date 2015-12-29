@@ -101,9 +101,9 @@
 	</bean>
 	
 	 <context:annotation-config />
-     <context:component-scan base-package="com.sk.deploy"/>
-     <context:component-scan base-package="com.sk.deploy.util"/>
-     <context:component-scan base-package="com.sk.deploy.servlet"/>
-	 <bean class="com.sk.deploy.util.SpringContextUtil"/>
+     <context:component-scan base-package="net.sk.deploy"/>
+     <context:component-scan base-package="net.sk.deploy.util"/>
+     <context:component-scan base-package="net.sk.deploy.servlet"/>
+	 <bean class="net.sk.deploy.util.SpringContextUtil"/>
 
 </beans>
