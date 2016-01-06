@@ -34,7 +34,7 @@
             <h2>开发联调环境自动部署</h2>
     </div>
 	<div class="login">
-		<form action="deploy.jsp" method="post">
+		<form action="index.jsp" method="post">
 			<div class="row">
 				<div class="label">用户名：</div>
 				<input type="text" name="username">
